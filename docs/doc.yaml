@@ -1,0 +1,1742 @@
+openapi: 3.0.3
+info:
+  title: Authentication API
+  description: API for user authentication and registration using email/password, magic links, and social authentication.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/
+tags:
+  - name: Auth
+    description: Authentication and Registration
+paths:
+  /api/v1/auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                username:
+                  type: string
+                  example: johndoe
+                firstname:
+                  type: string
+                  example: John
+                lastname:
+                  type: string
+                  example: Doe
+                password:
+                  type: string
+                  format: password
+                  example: securepassword123
+      responses:
+        201:
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 201
+                  message:
+                    type: string
+                    example: User registered successfully
+                  data:
+                    type: object
+                    properties:
+                      userId:
+                        type: string
+                        example: 507f1f77bcf86cd799439011
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: Invalid input
+
+  /api/v1/auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login using email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+                  example: securepassword123
+      responses:
+        200:
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: User logged in successfully
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 401
+                  message:
+                    type: string
+                    example: Invalid credentials
+
+  /api/v1/auth/magic-link:
+    post:
+      tags:
+        - Auth
+      summary: Request a magic link for login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+      responses:
+        200:
+          description: Magic link sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: Magic link sent to your email
+                  data:
+                    type: object
+                    example: null
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: Invalid input
+
+  /api/v1/auth/magic-link/verify:
+    get:
+      tags:
+        - Auth
+      summary: Verify a magic link and log in
+      parameters:
+        - in: query
+          name: token
+          required: true
+          schema:
+            type: string
+          description: The token sent via magic link
+      responses:
+        200:
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: User logged in successfully
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: Invalid token
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 401
+                  message:
+                    type: string
+                    example: Token expired or invalid
+
+  /api/v1/auth/social:
+    post:
+      tags:
+        - Auth
+      summary: Login using social authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                provider:
+                  type: string
+                  example: google
+                accessToken:
+                  type: string
+                  example: ya29.a0ARrdaM...
+      responses:
+        200:
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: User logged in successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "1234567890"
+                      email:
+                        type: string
+                        format: email
+                        example: user@example.com
+                      username:
+                        type: string
+                        example: johndoe
+                      displayName:
+                        type: string
+                        example: John Doe
+                      profilePictureUrl:
+                        type: string
+                        example: "https://example.com/profile-picture.jpg"
+                      accessToken:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: Invalid input
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 401
+                  message:
+                    type: string
+                    example: Invalid access token
+
+  /api/v1/auth/password-reset:
+    post:
+      tags:
+        - Auth
+      summary: Request password reset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+      responses:
+        200:
+          description: Password reset link sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: Password reset link sent to your email
+                  data:
+                    type: object
+                    example: null
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: Invalid input
+
+  /api/v1/auth/password-reset/confirm:
+    post:
+      tags:
+        - Auth
+      summary: Confirm password reset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  example: reset-token
+                newPassword:
+                  type: string
+                  format: password
+                  example: newpassword123
+      responses:
+        200:
+          description: Password reset successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: Password reset successfully
+                  data:
+                    type: object
+                    example: null
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: Invalid input
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 401
+                  message:
+                    type: string
+                    example: Invalid or expired token
+
+  /api/v1/invites:
+    get: 
+      tags: 
+        - Invites
+      summary: Fetch all invites sent by current user
+      operationId: getAllInvites
+      security:
+        - bearerAuth: []
+      responses: 
+        '200': 
+          description: Successful response
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: 'Retrieved successfully'
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Invites'
+        '500': 
+          $ref: '#/components/responses/ServerError'
+    post:
+      tags: 
+        - Invites
+      summary: Send an invite to a user
+      operationId: sendInvites
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+              required:
+                - email
+      responses:
+        '201':
+          description: Successful response
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                    status_code: 
+                      type: integer
+                      example: 201
+                    message:
+                      type: string
+                      example: 'invite sent successfully'
+                    data: 
+                      $ref: '#/components/schemas/Invites'
+        '400': 
+          $ref: '#/components/responses/ClientError'
+        '500': 
+          $ref: '#/components/responses/ServerError'
+  
+  /api/v1/invites/{inviteId}:
+    parameters:
+      - name: inviteId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: c0f0a3c2-2f8d-4d83-b302-e3b8e1d5a01c 
+    get:
+      tags: 
+        - Invites
+      summary: Fetch single invite
+      security:
+        - bearerAuth: []
+      operationId: fetchSingleInvite
+      responses:
+        '200': 
+          description: Success reponse
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: Invite retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                        example: c0f0a3c2-2f8d-4d83-b302-e3b8e1d5a01c
+                      email:
+                        type: string
+                        example: 'invitee@email.com'
+                      status:
+                        type: string
+                        enum: 
+                          - pending
+                          - decline
+                          - accept
+                          - canceled
+                      createdAt:
+                        type: string
+                        format: date-time
+                        example: '2024-07-13T15:30:00Z'
+                      updatedAt:
+                        type: string
+                        format: date-time
+                        example: '2024-07-13T15:30:00Z'
+        '400': 
+          $ref: '#/components/responses/ClientError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500': 
+          $ref: '#/components/responses/ServerError'
+    delete:
+      tags: 
+        - Invites
+      summary: Cancel an invite
+      operationId: cancelSingleInvite
+      responses:
+        '200': 
+          description: Deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  status_code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: Invite canceled
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500': 
+          $ref: '#/components/responses/ServerError'
+  
+  /api/v1/invites/{inviteId}/accept:
+    parameters:
+      - name: inviteId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: c0f0a3c2-2f8d-4d83-b302-e3b8e1d5a01c
+    post: 
+      tags: 
+        - Invites
+      summary: Accept an invite
+      security:
+        - bearerAuth: []
+      operationId: acceptSingleInvite
+      responses: 
+        '200':
+          description: Invite accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code: 
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: Invite accepted
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  
+  /api/v1/invites/{inviteId}/reject:
+    parameters:
+      - name: inviteId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: c0f0a3c2-2f8d-4d83-b302-e3b8e1d5a01c
+    post: 
+      tags: 
+        - Invites
+      summary: Reject an invite
+      operationId: rejectSingleInvite
+      security:
+        - bearerAuth: []
+      responses: 
+        '200':
+          description: Invite rejected
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code: 
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: Invite rejected
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  
+  /api/v1/transactions:
+    get:
+      tags: 
+        - Transactions
+      summary: Fetch all transactions
+      operationId: getAllTransactions
+      security:
+        - bearerAuth: []
+      responses:
+        '200': 
+          description: Successful response
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transactions'
+    post:
+      tags: 
+        - Transactions
+      summary: Add new transaction
+      operationId: Add to transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - pending
+                    - failed
+                    - success
+                currency:
+                  type: string
+                  enum: 
+                    - USD 
+                    - EUR
+                    - NGN
+                amount:
+                  type: integer
+              required:
+                - currency
+                - amount
+      responses:
+        '201':
+          description: Successful response
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/Transactions'
+        '400': 
+          $ref: '#/components/responses/ClientError'
+        '500': 
+          $ref: '#/components/responses/ServerError'
+  
+  /api/v1/transactions/{transactionId}:
+    parameters:
+      - name: transactionId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: c0f0a3c2-2f8d-4d83-b302-e3b8e1d5a01c
+    get:
+      tags: 
+        - Transactions
+      summary: Fetch single tranaction
+      operationId: fetchSingleTransaction
+      security:
+        - bearerAuth: []
+      responses:
+        '200': 
+          description: Success reponse
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: Transaction retrieved successfully
+                  data:
+                    $ref: '#/components/schemas/Transactions'
+        '400': 
+          $ref: '#/components/responses/ClientError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500': 
+          $ref: '#/components/responses/ServerError'
+    put:
+      tags: 
+        - Transactions
+      summary: Update a transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - pending
+                    - failed
+                    - success
+                currency:
+                  type: string
+                  enum: 
+                    - USD 
+                    - EUR
+                    - NGN
+                amount:
+                  type: integer
+              required:
+                - currency
+                - amount
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                    status_code: 
+                      type: integer
+                      example: 200
+                    message:
+                      type: string
+                      example: 'Transactions updated'
+                    data:
+                      $ref: '#/components/schemas/Transactions'
+        '400': 
+          $ref: '#/components/responses/ClientError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500': 
+          $ref: '#/components/responses/ServerError'
+    delete:
+      tags: 
+        - Transactions
+      summary: Delete single transaction
+      operationId: removeTransaction
+      responses:
+        '200': 
+          description: Transaction deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  status_code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: Transaction deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500': 
+          $ref: '#/components/responses/ServerError'
+ 
+  /api/v1/organizations/{orgId}:
+    get:
+      summary: Get a single organization
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: object
+      responses:
+        '200':
+          description: A single organization
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  logo:
+                    type: string
+                  createdAt: 
+                    type: string
+                    format: date-time
+                  userId:
+                    type: integer
+        '400': 
+          description: Error messages
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid request parameter
+        '404': 
+          description: Not found
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Resource not found
+    delete:
+      summary: Delete a single organization
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No Content, organization successfully deleted
+        '400': 
+          description: Bad Request
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid request parameter
+        '404': 
+          description: Not found
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    patch:
+      summary: Update a single organization
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                logo:
+                  type: string
+      responses:
+        '200':
+          description: Organization successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  logo:
+                    type: string
+                  createdAt: 
+                    type: string
+                    format: date-time
+                  userId:
+                    type: integer
+        '400': 
+          description: Bad Request
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid request parameter
+        '404': 
+          description: Not found
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  
+  /api/v1/organizations:
+    get:
+      summary: Get a list of organizations
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of organizations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    description:
+                      type: string
+                    logo:
+                      type: string
+                    createdAt: 
+                      type: object
+                    userId:
+                      type: integer
+        '400': 
+          description: Error messages
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid request parameter
+        '404': 
+          description: Not found
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Resource not found
+    post:
+      summary: Create a new organisation
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "New Organization"
+                address:
+                  type: string
+                  example: "123 Main St"
+      responses:
+        '201':
+          description: Organization created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  name:
+                    type: string
+                    example: "McCoy's Organization"
+                  description:
+                    type: string
+                    example: "Dealer in all kind of food stuffs"
+                  logo: 
+                    type: string
+                    example: "https://cloudinary.com"
+                  userid:
+                    type: integer
+                    example: 35
+                  createdAt:
+                    type: string
+                    example: '12/07/202..'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid request parameters"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Resource not found"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "An unexpected error occurred"
+  
+
+  /api/v1/payments:
+    get:
+      summary: Get the list of Payment
+      security:
+       - bearerAuth: []
+      responses:
+       '200':
+         description: A list of Payment
+         content:
+          application/json:
+            schema:
+             type: array
+             items: 
+              type: object
+              properties:
+               id: 
+                type: string
+                example: dgdgfhrhdjsjf
+               paymentId: 
+                type: string
+                example: dhghrhf
+               paymentProvider: 
+                type: string
+                example: hdfhegfd
+               userId:
+                type: integer
+                example: 789
+               createdAt: 
+                format: date-time
+       '400': 
+          description: Bad Request
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid request parameter
+       '404': 
+          description: Not found
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    post:
+      summary: Make payment
+      security:
+       - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+               id: 
+                type: string
+                example: dgdgfhrhhujjf
+               paymentId: 
+                type: string
+                example: dhghrhgggggf
+               paymentProvider: 
+                type: string
+                example: hdfhegfd
+               userId:
+                type: integer
+                example: 789
+               createdAt: 
+                format: date-time
+      responses:
+       '201':
+         description: making payment
+         content:
+          application/json:
+            schema:
+             type: array
+             items: 
+              type: object
+              properties:
+               id: 
+                type: string
+                example: dgdgfhrhdjsjf
+               paymentId: 
+                type: string
+                example: dhghrhf
+               paymentProvider: 
+                type: string
+                example: hdfhegfd
+               userId:
+                type: integer
+                example: 709
+               createdAt: 
+                format: date-time
+       '400': 
+          description: Bad Request
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid request parameter
+       '404': 
+          description: Not found
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Request not found
+  
+  /api/v1/payments/{paymentId}:
+    get:
+      summary: Get a single payment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: object
+      responses:
+        '200':
+          description: A single payment
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                 id: 
+                  type: string
+                  example: dgdgfhrhdjsjf
+                 paymentId: 
+                  type: string
+                  example: dhghrhf
+                 paymentProvider: 
+                  type: string
+                  example: hdfhegfd
+                 userId:
+                  type: integer
+                  example: 709
+                 createdAt: 
+                  format: date-time
+        '400': 
+          description: Bad Request
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid request parameter
+        '404': 
+          description: Not found
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Resource not found
+    delete:
+      summary: Delete a single organization
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No Content, organization successfully deleted
+        '400': 
+          description: Bad Request
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid request parameter
+        '404': 
+          description: Not found
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    patch:
+      summary: Update a single payment
+      security:
+       - bearerAuth: []
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                 id: 
+                  type: string
+                  example: dgdgfhrhdjsjf
+                 paymentId: 
+                  type: string
+                  example: dhghrhf
+                 paymentProvider: 
+                  type: string
+                  example: hdfhegfd
+                 userId:
+                  type: integer
+                  example: 709
+                 createdAt: 
+                  format: date-time
+      responses:
+        '200':
+          description: Organization successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                 id: 
+                  type: string
+                  example: dgdgfhrhdjsjf
+                 paymentId: 
+                  type: string
+                  example: dhghrhf
+                 paymentProvider: 
+                  type: string
+                  example: hdfhegfd
+                 userId:
+                  type: integer
+                  example: 709
+                 createdAt: 
+                  format: date-time
+        '400': 
+          description: Bad Request
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid request parameter
+        '404': 
+          description: Not found
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+  /api/v1/notifications:
+    get:
+      summary: Retrieve notifications
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+
+    post:
+      summary: Create a new notification
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationInput'
+      responses:
+        '201':
+          description: Notification created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+  
+  /api/v1/notifications/{id}:
+    get:
+      summary: Retrieve a specific notification
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+
+    put:
+      summary: Update a notification's read status
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationUpdate'
+      responses:
+        '200':
+          description: Notification updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+
+  /api/v1/users:
+    get:
+      summary: Retrieve users
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+    post:
+      summary: Create a new user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /api/v1/users/{id}:
+    get:
+      summary: Retrieve a specific user
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+    put:
+      summary: Update a user
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+
+  
+   
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+   
+    Invites:
+      type: object
+      properties:
+        status_code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: 'Retrieved successfully'
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+                id:
+                  type: string
+                  format: uuid
+                  example: c0f0a3c2-2f8d-4d83-b302-e3b8e1d5a01c
+                email:
+                  type: string
+                  example: invitee@email.com
+                status:
+                  type: string
+                  enum: 
+                    - pending
+                    - decline
+                    - accept
+                    - canceled
+                createdAt:
+                  type: string
+                  format: date-time
+                  example: 2024-07-13T15:30:00Z
+                updatedAt:
+                  type: string
+                  format: date-time
+                  example: '2024-07-13T15:30:00Z'
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        message:
+          type: string
+        isRead:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        userId:
+          type: integer
+
+    NotificationInput:
+      type: object
+      required:
+        - message
+        - userId
+      properties:
+        message:
+          type: string
+        userId:
+          type: integer
+    NotificationUpdate:
+      type: object
+      required:
+        - isRead
+      properties:
+        isRead:
+          type: boolean
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        image:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        socialType:
+          type: string
+          enum: [facebook, google, twitter, apple]
+        socialId:
+          type: string
+
+    UserInput:
+      type: object
+      required:
+        - email
+        - username
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        password:
+          type: string
+          format: password
+        image:
+          type: string
+        socialType:
+          type: string
+          enum: [facebook, google, twitter, apple]
+        socialId:
+          type: string
+
+    UserUpdate:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        image:
+          type: string
+    Transactions:
+      type: object
+      properties:
+          status_code: 
+            type: integer
+            example: 201
+          message:
+            type: string
+            example: 'Transactions added'
+          data:
+            type: object
+            properties:
+                id:
+                  type: string
+                  format: uuid
+                  example: c0f0a3c2-2f8d-4d83-b302-e3b8e1d5a01c
+                amount:
+                  type: integer
+                  example: 1234.5
+                currency:
+                  type: string
+                  enum: 
+                    - USD
+                    - EUR
+                    - NGN
+                status:
+                  type: string
+                  enum: 
+                    - pending
+                    - failed
+                    - success
+                createdAt:
+                  type: string
+                  format: date-time
+                  example: 2024-07-13T15:30:00Z
+                updatedAt:
+                  type: string
+                  format: date-time
+                  example: '2024-07-13T15:30:00Z'
+  responses:
+    ServerError:
+      description: Server error occurred
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status_code:
+                type: integer
+                example: 500
+              message:
+                type: string
+                example: Internal Server Error
+    ClientError:
+      description: Client error occurred
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status_code:
+                type: integer
+                example: 400
+              message:
+                type: string
+                example: Bad Request
+    NotFoundError:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status_code:
+                type: integer
+                example: 404
+              message:
+                type: string
+                example: Resource not found
